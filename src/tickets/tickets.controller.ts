@@ -1,0 +1,53 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { CreateTicketDto } from './dto/create-ticket.dto.js';
+import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
+import { UpdateTicketDto } from './dto/update-ticket.dto.js';
+import { StaffGuard } from './guards/staff.guard.js';
+import { TicketsService } from './tickets.service.js';
+
+@Controller('tickets')
+export class TicketsController {
+  constructor(private readonly ticketService: TicketsService) {}
+
+  @Get()
+  findAll(@Query() filters: FilterTicketsQueryDto) {
+    return this.ticketService.findAll({
+      status: filters.status,
+      priority: filters.priority,
+    });
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.ticketService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() createTicketDto: CreateTicketDto) {
+    return this.ticketService.create(createTicketDto);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTicketDto: UpdateTicketDto,
+  ) {
+    return this.ticketService.update(id, updateTicketDto);
+  }
+
+  @UseGuards(StaffGuard)
+  @Patch(':id/close')
+  closeTicket(@Param('id', ParseIntPipe) id: number) {
+    return this.ticketService.closeTicket(id);
+  }
+}
