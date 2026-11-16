@@ -2,10 +2,11 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateUserDto } from './dto/create-user.dto.js';
-import { UpdateUserDto } from './dto/update-user.dto.js';
+import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './users.interface.js';
 
 @Injectable()
@@ -108,6 +109,19 @@ export class UsersService {
     if (!user) throw new NotFoundException(`User with id: ${id} not found`);
 
     Object.assign(user, dto);
+
+    return user;
+  }
+
+  updateEmail(id: string, emailDto: updateEmailDto) {
+    const user = this.findOne(id);
+
+    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
+
+    if (user.email !== emailDto.oldEmail)
+      throw new UnauthorizedException('Unauthorized Access!!');
+
+    Object.assign(user, { email: emailDto.newEmail });
 
     return user;
   }

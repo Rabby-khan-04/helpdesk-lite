@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -24,4 +25,15 @@ export class UpdateUserDto {
   @IsNotEmpty()
   @IsIn(['male', 'female', 'others'])
   gender: string;
+}
+
+export class updateEmailDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  oldEmail: string;
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  newEmail: string;
 }
