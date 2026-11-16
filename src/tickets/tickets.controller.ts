@@ -44,6 +44,8 @@ export class TicketsController {
     return this.ticketService.update(id, updateTicketDto);
   }
 
+  // Scopped for only the close route, but for now it's dead weight, cause the app module used it with APP_FILTER
+  // @UseFilters(HttpExceptionFilter)
   @UseGuards(StaffGuard)
   @Patch(':id/close')
   // @HttpCode(204)

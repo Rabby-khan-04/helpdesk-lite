@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserLoggerMiddlewareMiddleware } from '../common/user-logger-middleware.middleware.js';
 import { UsersController } from './users.controller.js';
 import { UsersService } from './users.service.js';
@@ -15,7 +15,7 @@ import { UsersService } from './users.service.js';
     },
   ],
 })
-export class UsersModule {
+export class UsersModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(UserLoggerMiddlewareMiddleware).forRoutes(UsersController);
   }

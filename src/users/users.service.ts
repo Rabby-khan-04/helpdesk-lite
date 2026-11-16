@@ -75,7 +75,10 @@ export class UsersService {
   findOne(id: string) {
     const user = this.users.find((user) => user.id === id);
 
-    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
+    if (!user)
+      throw new NotFoundException(`User with id: ${id} not found`, {
+        errorCode: 'BATPAR_INCOMING',
+      });
 
     return user;
   }
