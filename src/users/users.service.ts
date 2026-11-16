@@ -1,0 +1,114 @@
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { User } from './users.interface.js';
+
+@Injectable()
+export class UsersService {
+  private readonly users: User[] = [
+    {
+      id: 'u001',
+      name: 'Alice Johnson',
+      email: 'alice.johnson@example.com',
+      role: 'admin',
+      password: 'hashed_pw_alice_2024',
+      photo: 'https://example.com/photos/alice.jpg',
+      age: 32,
+      gender: 'female',
+    },
+    {
+      id: 'u002',
+      name: 'Bob Martinez',
+      email: 'bob.martinez@example.com',
+      role: 'editor',
+      password: 'hashed_pw_bob_2024',
+      // photo omitted (optional field)
+      age: 27,
+      gender: 'male',
+    },
+    {
+      id: 'u003',
+      name: 'Chen Wei',
+      email: 'chen.wei@example.com',
+      role: 'user',
+      password: 'hashed_pw_chen_2024',
+      photo: 'https://example.com/photos/chen.jpg',
+      age: 41,
+      gender: 'male',
+    },
+    {
+      id: 'u004',
+      name: 'Diana Kowalski',
+      email: 'diana.kowalski@example.com',
+      role: 'moderator',
+      password: 'hashed_pw_diana_2024',
+      photo: 'https://example.com/photos/diana.jpg',
+      age: 35,
+      gender: 'female',
+    },
+    {
+      id: 'u005',
+      name: 'Emeka Okafor',
+      email: 'emeka.okafor@example.com',
+      role: 'user',
+      password: 'hashed_pw_emeka_2024',
+      // photo omitted (optional field)
+      age: 24,
+      gender: 'male',
+    },
+  ];
+
+  findAll(gender?: string) {
+    let users = this.users ?? [];
+
+    if (gender) users = users.filter((user) => user.gender === gender);
+
+    return users;
+  }
+
+  findOne(id: string) {
+    const user = this.users.find((user) => user.id === id);
+
+    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
+
+    return user;
+  }
+
+  create(dto: CreateUserDto) {
+    const exist = this.users.find((user) => user.email === dto.email);
+
+    if (exist)
+      throw new ConflictException(
+        `User with email: ${dto.email} already exists`,
+      );
+    const user = {
+      id: randomUUID().slice(0, 8),
+      name: dto.name,
+      gender: dto.gender,
+      age: dto.age,
+      email: dto.email,
+      password: dto.password,
+      photo: dto.photo ?? '',
+      role: 'user',
+    };
+
+    this.users.push(user);
+
+    return user;
+  }
+
+  update(id: string, dto: UpdateUserDto) {
+    const user = this.findOne(id);
+
+    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
+
+    Object.assign(user, dto);
+
+    return user;
+  }
+}
