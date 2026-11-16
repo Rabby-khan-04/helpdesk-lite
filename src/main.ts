@@ -4,7 +4,10 @@ import { AppModule } from './app.module.js';
 import { ResponseInterceptor } from './common/response.interceptor.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    routeConflictPolicy: { duplicate: 'error', shadow: 'warn' },
+    routeResolutionStrategy: 'specificity',
+  });
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(

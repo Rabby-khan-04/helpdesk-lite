@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Param,
   ParseIntPipe,
   Patch,
@@ -25,6 +26,7 @@ export class TicketsController {
   }
 
   @Get(':id')
+  @Header('Cache-Control', 'no-store')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.ticketService.findOne(id);
   }
@@ -44,6 +46,7 @@ export class TicketsController {
 
   @UseGuards(StaffGuard)
   @Patch(':id/close')
+  // @HttpCode(204)
   closeTicket(@Param('id', ParseIntPipe) id: number) {
     return this.ticketService.closeTicket(id);
   }
