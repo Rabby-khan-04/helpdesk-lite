@@ -4,6 +4,14 @@ import { UsersService } from './users.service.js';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+
+    // injecting something not a class
+    {
+      provide: 'TEST_CONFIG',
+      useValue: { port: 3000, host: 'localhost', me: 'Depressed developer' },
+    },
+  ],
 })
 export class UsersModule {}

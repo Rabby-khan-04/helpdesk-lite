@@ -8,3 +8,9 @@ export interface User {
   age: number;
   gender: string;
 }
+
+export interface AppConfig {
+  port: number;
+  host: string;
+  me: string;
+}

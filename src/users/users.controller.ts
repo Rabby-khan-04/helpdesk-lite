@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
@@ -12,11 +13,15 @@ import type { Response } from 'express';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FilterUserQueryDto } from './dto/filter-user-query.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
+import type { AppConfig } from './users.interface.js';
 import { UsersService } from './users.service.js';
 
 @Controller({ path: 'users' })
 export class UsersController {
-  constructor(private users: UsersService) {}
+  constructor(
+    private users: UsersService,
+    @Inject('TEST_CONFIG') private config: AppConfig,
+  ) {}
 
   @Get()
   findAll(@Query() filter: FilterUserQueryDto) {
@@ -48,5 +53,10 @@ export class UsersController {
   @Patch(':id/email')
   updateEmail(@Param('id') id: string, @Body() emailDto: updateEmailDto) {
     return this.users.updateEmail(id, emailDto);
+  }
+
+  @Get('/config')
+  getConfig() {
+    return this.config;
   }
 }
