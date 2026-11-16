@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Optional,
   Param,
   Patch,
   Post,
@@ -21,6 +22,9 @@ export class UsersController {
   constructor(
     private users: UsersService,
     @Inject('TEST_CONFIG') private config: AppConfig,
+
+    // If nothing register as HTTP_OPTIONS then nest give undefined, don't through errors;
+    @Optional() @Inject('HTTP_OPTIONS') private options: unknown,
   ) {}
 
   @Get()
