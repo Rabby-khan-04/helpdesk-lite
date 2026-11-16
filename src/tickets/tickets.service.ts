@@ -38,13 +38,7 @@ export class TicketsService {
 
   private nextTicketId = 4;
 
-  findAll({
-    status,
-    priority,
-  }: {
-    status?: Ticket['status'];
-    priority?: Ticket['priority'];
-  }) {
+  findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
     let tickets = this.tickets;
 
     if (status) tickets = tickets.filter((ticket) => ticket.status === status);

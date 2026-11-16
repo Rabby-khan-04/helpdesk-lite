@@ -21,10 +21,7 @@ export class TicketsController {
 
   @Get()
   findAll(@Query() filters: FilterTicketsQueryDto) {
-    return this.ticketService.findAll({
-      status: filters.status,
-      priority: filters.priority,
-    });
+    return this.ticketService.findAll(filters.status, filters.priority);
   }
 
   @Get(':id')
