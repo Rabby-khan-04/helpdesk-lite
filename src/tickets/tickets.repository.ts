@@ -16,5 +16,5 @@ export abstract class TicketsRepository {
   ): Promise<Ticket>;
   abstract closeTicket(id: number): Promise<Ticket>;
   abstract stats(): Promise<{ open: number; closed: number; total: number }>;
-  abstract renect(): Promise<Ticket[]>;
+  abstract renect(limit?: number, page?: number): Promise<Ticket[]>;
 }
