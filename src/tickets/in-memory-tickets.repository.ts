@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Ticket } from './ticket.interface.js';
 import { TicketFilter, TicketsRepository } from './tickets.repository.js';
 
@@ -100,6 +96,8 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       createdAt: '2026-09-04T09:10:00.000Z',
     },
   ];
+
+  // Next free id. Highest seed id is 10.
   private nextTicketId = 11;
 
   async findAll(filters: TicketFilter): Promise<Ticket[]> {
@@ -121,9 +119,8 @@ export class InMemoryTicketsRepository implements TicketsRepository {
     return [...tickets];
   }
 
-  async findOne(id: number) {
-    const ticket = this.tickets.find((ticket) => ticket.id === id);
-    return ticket;
+  async findById(id: number): Promise<Ticket | undefined> {
+    return this.tickets.find((ticket) => ticket.id === id);
   }
 
   async create(data: Omit<Ticket, 'id'>): Promise<Ticket> {
@@ -137,7 +134,10 @@ export class InMemoryTicketsRepository implements TicketsRepository {
     return ticket;
   }
 
-  async update(id: number, data: Partial<Omit<Ticket, 'id'>>): Promise<Ticket> {
+  async update(
+    id: number,
+    data: Partial<Omit<Ticket, 'id'>>,
+  ): Promise<Ticket> {
     const ticket = this.tickets.find((candidate) => candidate.id === id);
 
     if (!ticket) {
@@ -154,34 +154,5 @@ export class InMemoryTicketsRepository implements TicketsRepository {
     const index = this.tickets.findIndex((ticket) => ticket.id === id);
 
     if (index !== -1) this.tickets.splice(index, 1);
-  }
-
-  async closeTicket(id: number): Promise<Ticket> {
-    const ticket = await this.findOne(id);
-    if (!ticket) throw new NotFoundException(`Ticket with Id: ${id} not found`);
-
-    if (ticket.status === 'closed')
-      throw new BadRequestException('Ticket is already closed');
-
-    Object.assign(ticket, { status: 'closed' });
-    return ticket;
-  }
-
-  async renect(limit?: number, page?: number): Promise<Ticket[]> {
-    return [...this.tickets]
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .slice(0, Math.min(limit ? limit : 1, 50));
-  }
-
-  async stats(): Promise<{ open: number; closed: number; total: number }> {
-    const open = this.tickets.filter(
-      (ticket) => ticket.status === 'open',
-    ).length;
-
-    return {
-      open,
-      closed: this.tickets.length - open,
-      total: this.tickets.length,
-    };
   }
 }

@@ -3,10 +3,10 @@ import { Ticket } from '../ticket.interface.js';
 import { TicketsService } from '../tickets.service.js';
 
 @Injectable()
-export class TicketByIdPipe implements PipeTransform<string, Ticket> {
+export class TicketByIdPipe implements PipeTransform<string, Promise<Ticket>> {
   constructor(private ticketService: TicketsService) {}
 
-  transform(value: string): Ticket {
+  async transform(value: string): Promise<Ticket> {
     const id = Number.parseInt(value, 10);
     if (Number.isNaN(id)) throw new BadRequestException('Id must be a number');
     return this.ticketService.findOne(id);

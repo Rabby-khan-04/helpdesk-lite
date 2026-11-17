@@ -2,86 +2,93 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
+import { ErrorCode } from '../common/error-codes.js';
 import { PublicUser } from '../users/public-user.js';
+import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { TicketCloseExceptions } from './exceptions/ticket-close.exceptions.js';
 import { Ticket } from './ticket.interface.js';
-import { TicketsRepository } from './tickets.repository.js';
+import { TicketFilter, TicketsRepository } from './tickets.repository.js';
 
 @Injectable()
 export class TicketsService {
-  constructor(private repo: TicketsRepository) {}
+  constructor(
+    private readonly ticketsRepository: TicketsRepository,
+    private readonly usersService: UsersService,
+  ) {}
 
-  findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
-    this.repo.findAll({ status, priority });
+  findAll(filters: TicketFilter): Promise<Ticket[]> {
+    return this.ticketsRepository.findAll(filters);
   }
 
-  findOne(id: number) {
-    return this.repo.findOne(id);
+  async findOne(id: number): Promise<Ticket> {
+    const ticket = await this.ticketsRepository.findById(id);
+
+    if (!ticket)
+      throw new NotFoundException(`Ticket with Id: ${id} not found`, {
+        errorCode: ErrorCode.TicketNotFound,
+      });
+
+    return ticket;
   }
 
-  create(createTicketDto: CreateTicketDto) {
-    const user = this.usersService.findOne(createTicketDto.reporterId);
-    const ticket: Ticket = {
-      id: this.nextTicketId++,
+  async create(createTicketDto: CreateTicketDto): Promise<Ticket> {
+    await this.usersService.findOne(createTicketDto.reporterId);
+
+    return this.ticketsRepository.create({
       subject: createTicketDto.subject,
       description: createTicketDto.description,
       reporterId: createTicketDto.reporterId,
       priority: createTicketDto.priority,
       status: 'open',
       createdAt: new Date().toISOString(),
-    };
-
-    this.tickets.push(ticket);
-
-    return ticket;
+    });
   }
 
-  update(id: number, updateTicketDto: UpdateTicketDto) {
-    const ticket = this.findOne(id);
+  async update(id: number, updateTicketDto: UpdateTicketDto): Promise<Ticket> {
+    const ticket = await this.findOne(id);
 
     if (ticket.status === 'closed')
       throw new TicketCloseExceptions('Closed ticket cannot be updated!');
 
-    Object.assign(ticket, updateTicketDto);
-
-    return ticket;
+    return this.ticketsRepository.update(id, updateTicketDto);
   }
 
-  closeTicket(id: number) {
-    const ticket = this.findOne(id);
+  async closeTicket(id: number): Promise<Ticket> {
+    const ticket = await this.findOne(id);
 
     if (ticket.status === 'closed')
       throw new BadRequestException('Ticket is already closed');
 
-    Object.assign(ticket, { status: 'closed' });
-
-    return ticket;
+    return this.ticketsRepository.update(id, { status: 'closed' });
   }
 
-  stats() {
-    const open = this.tickets.filter(
-      (ticket) => ticket.status === 'open',
-    ).length;
+  async stats() {
+    const tickets = await this.ticketsRepository.findAll({});
+    const open = tickets.filter((ticket) => ticket.status === 'open').length;
 
     return {
       open,
-      closed: this.tickets.length - open,
-      total: this.tickets.length,
+      closed: tickets.length - open,
+      total: tickets.length,
     };
   }
 
-  delete(id: number) {
-    const ticket = this.findOne(id);
-    this.tickets.splice(this.tickets.indexOf(ticket), 1);
+  async delete(id: number): Promise<Ticket> {
+    const ticket = await this.findOne(id);
+
+    await this.ticketsRepository.remove(id);
 
     return ticket;
   }
 
-  renect(limit: number, page: number) {
-    return [...this.tickets]
+  async renect(limit: number, page: number): Promise<Ticket[]> {
+    const tickets = await this.ticketsRepository.findAll({});
+
+    return tickets
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, Math.min(limit, 50));
   }

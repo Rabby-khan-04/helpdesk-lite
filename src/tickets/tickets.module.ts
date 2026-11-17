@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from '../users/users.module.js';
-import { InMemoryTicketsRepository } from './in-memory-tickets.js';
+import { InMemoryTicketsRepository } from './in-memory-tickets.repository.js';
 import { TicketsController } from './tickets.controller.js';
 import { TicketsRepository } from './tickets.repository.js';
 import { TicketsService } from './tickets.service.js';

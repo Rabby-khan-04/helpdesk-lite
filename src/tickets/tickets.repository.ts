@@ -6,15 +6,14 @@ export interface TicketFilter {
   reporterId?: string;
 }
 
+// The port. Storage only - business rules live in TicketsService.
 export abstract class TicketsRepository {
   abstract findAll(filters: TicketFilter): Promise<Ticket[]>;
-  abstract findOne(id: number): Promise<Ticket | undefined>;
+  abstract findById(id: number): Promise<Ticket | undefined>;
   abstract create(data: Omit<Ticket, 'id'>): Promise<Ticket>;
   abstract update(
     id: number,
     data: Partial<Omit<Ticket, 'id'>>,
   ): Promise<Ticket>;
-  abstract closeTicket(id: number): Promise<Ticket>;
-  abstract stats(): Promise<{ open: number; closed: number; total: number }>;
-  abstract renect(limit?: number, page?: number): Promise<Ticket[]>;
+  abstract remove(id: number): Promise<void>;
 }

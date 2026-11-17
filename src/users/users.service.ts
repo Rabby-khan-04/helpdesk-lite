@@ -5,75 +5,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import argon2 from 'argon2';
-import { randomUUID } from 'crypto';
 import { ErrorCode } from '../common/error-codes.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './users.interface.js';
+import { UserFilter, UsersRepository } from './users.repository.js';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-    {
-      id: 'u001',
-      name: 'Amina Staff',
-      email: 'amina.staff@example.com',
-      role: 'staff',
-      password: 'placeholder_hash_1',
-      age: 31,
-      gender: 'female',
-    },
-    {
-      id: 'u002',
-      name: 'Adam Admin',
-      email: 'adam.admin@example.com',
-      role: 'admin',
-      password: 'placeholder_hash_2',
-      age: 40,
-      gender: 'male',
-    },
-    {
-      id: 'u003',
-      name: 'Chen Wei',
-      email: 'chen.wei@example.com',
-      role: 'user',
-      password: 'hashed_pw_chen_2024',
-      photo: 'https://example.com/photos/chen.jpg',
-      age: 41,
-      gender: 'male',
-    },
-    {
-      id: 'u004',
-      name: 'Diana Kowalski',
-      email: 'diana.kowalski@example.com',
-      role: 'staff',
-      password: 'hashed_pw_diana_2024',
-      photo: 'https://example.com/photos/diana.jpg',
-      age: 35,
-      gender: 'female',
-    },
-    {
-      id: 'u005',
-      name: 'Emeka Okafor',
-      email: 'emeka.okafor@example.com',
-      role: 'user',
-      password: 'hashed_pw_emeka_2024',
-      // photo omitted (optional field)
-      age: 24,
-      gender: 'male',
-    },
-  ];
+  constructor(private readonly usersRepository: UsersRepository) {}
 
-  findAll(gender?: string) {
-    let users = this.users ?? [];
-
-    if (gender) users = users.filter((user) => user.gender === gender);
-
-    return users;
+  findAll(filters: UserFilter): Promise<User[]> {
+    return this.usersRepository.findAll(filters);
   }
 
-  findOne(id: string) {
-    const user = this.users.find((user) => user.id === id);
+  async findOne(id: string): Promise<User> {
+    const user = await this.usersRepository.findById(id);
 
     if (!user)
       throw new NotFoundException(`User with id: ${id} not found`, {
@@ -83,16 +30,16 @@ export class UsersService {
     return user;
   }
 
-  async create(dto: CreateUserDto) {
-    const exist = this.users.find((user) => user.email === dto.email);
+  async create(dto: CreateUserDto): Promise<User> {
+    const exist = await this.usersRepository.findByEmail(dto.email);
 
     if (exist)
       throw new ConflictException(
         `User with email: ${dto.email} already exists`,
         { errorCode: ErrorCode.EmailTaken },
       );
-    const user: User = {
-      id: randomUUID().slice(0, 8),
+
+    return this.usersRepository.create({
       name: dto.name,
       gender: dto.gender,
       age: dto.age,
@@ -100,29 +47,21 @@ export class UsersService {
       password: await argon2.hash(dto.password),
       photo: dto.photo ?? '',
       role: 'user',
-    };
-
-    this.users.push(user);
-
-    return user;
+    });
   }
 
-  update(id: string, dto: UpdateUserDto) {
-    const user = this.findOne(id);
+  async update(id: string, dto: UpdateUserDto): Promise<User> {
+    await this.findOne(id);
 
-    Object.assign(user, dto);
-
-    return user;
+    return this.usersRepository.update(id, dto);
   }
 
-  updateEmail(id: string, emailDto: updateEmailDto) {
-    const user = this.findOne(id);
+  async updateEmail(id: string, emailDto: updateEmailDto): Promise<User> {
+    const user = await this.findOne(id);
 
     if (user.email !== emailDto.oldEmail)
       throw new UnauthorizedException('Unauthorized Access!!');
 
-    Object.assign(user, { email: emailDto.newEmail });
-
-    return user;
+    return this.usersRepository.update(id, { email: emailDto.newEmail });
   }
 }
