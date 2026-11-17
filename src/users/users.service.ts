@@ -4,6 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import argon2 from 'argon2';
 import { randomUUID } from 'crypto';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
@@ -83,7 +84,7 @@ export class UsersService {
     return user;
   }
 
-  create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto) {
     const exist = this.users.find((user) => user.email === dto.email);
 
     if (exist)
@@ -96,7 +97,7 @@ export class UsersService {
       gender: dto.gender,
       age: dto.age,
       email: dto.email,
-      password: dto.password,
+      password: await argon2.hash(dto.password),
       photo: dto.photo ?? '',
       role: 'user',
     };
@@ -109,8 +110,6 @@ export class UsersService {
   update(id: string, dto: UpdateUserDto) {
     const user = this.findOne(id);
 
-    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
-
     Object.assign(user, dto);
 
     return user;
@@ -118,8 +117,6 @@ export class UsersService {
 
   updateEmail(id: string, emailDto: updateEmailDto) {
     const user = this.findOne(id);
-
-    if (!user) throw new NotFoundException(`User with id: ${id} not found`);
 
     if (user.email !== emailDto.oldEmail)
       throw new UnauthorizedException('Unauthorized Access!!');

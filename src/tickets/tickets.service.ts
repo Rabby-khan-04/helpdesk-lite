@@ -87,7 +87,7 @@ export class TicketsService {
     const ticket = this.findOne(id);
 
     if (ticket.status === 'closed')
-      throw new BadRequestException('Ticket is alreday closed');
+      throw new BadRequestException('Ticket is already closed');
 
     Object.assign(ticket, { status: 'closed' });
 

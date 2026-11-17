@@ -14,6 +14,7 @@ import type { Response } from 'express';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FilterUserQueryDto } from './dto/filter-user-query.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
+import { toPublicUsers } from './public-user.js';
 import type { AppConfig } from './users.interface.js';
 import { UsersService } from './users.service.js';
 
@@ -34,19 +35,19 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.users.findOne(id);
+    return toPublicUsers(this.users.findOne(id));
   }
 
   @Post()
-  create(
+  async create(
     @Res({ passthrough: true }) res: Response,
     @Body() dto: CreateUserDto,
   ) {
-    const user = this.users.create(dto);
+    const user = await this.users.create(dto);
 
     res.cookie('user', { email: user.email, password: user.password });
 
-    return user;
+    return toPublicUsers(user);
   }
 
   @Patch(':id')
