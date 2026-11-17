@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
@@ -8,8 +9,10 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
@@ -25,6 +28,11 @@ export class TicketsController {
     return this.ticketService.findAll(filters.status, filters.priority);
   }
 
+  @Get('/stats')
+  stats() {
+    return this.ticketService.stats();
+  }
+
   @Get(':id')
   @Header('Cache-Control', 'no-store')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -32,8 +40,13 @@ export class TicketsController {
   }
 
   @Post()
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return this.ticketService.create(createTicketDto);
+  create(
+    @Body() createTicketDto: CreateTicketDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const ticket = this.ticketService.create(createTicketDto);
+    res.setHeader('Location', `/api/tickets/${ticket.id}`);
+    return ticket;
   }
 
   @Patch(':id')
@@ -51,5 +64,11 @@ export class TicketsController {
   // @HttpCode(204)
   closeTicket(@Param('id', ParseIntPipe) id: number) {
     return this.ticketService.closeTicket(id);
+  }
+
+  @UseGuards(StaffGuard)
+  @Delete(':id')
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.ticketService.delete(id);
   }
 }

@@ -100,4 +100,23 @@ export class TicketsService {
 
     return ticket;
   }
+
+  stats() {
+    const open = this.tickets.filter(
+      (ticket) => ticket.status === 'open',
+    ).length;
+
+    return {
+      open,
+      closed: this.tickets.length - open,
+      total: this.tickets.length,
+    };
+  }
+
+  delete(id: number) {
+    const ticket = this.findOne(id);
+    this.tickets.splice(this.tickets.indexOf(ticket), 1);
+
+    return ticket;
+  }
 }

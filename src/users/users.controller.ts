@@ -33,6 +33,11 @@ export class UsersController {
     return this.users.findAll(filter.gender);
   }
 
+  @Get('/config')
+  getConfig() {
+    return this.config;
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return toPublicUsers(this.users.findOne(id));
@@ -58,10 +63,5 @@ export class UsersController {
   @Patch(':id/email')
   updateEmail(@Param('id') id: string, @Body() emailDto: updateEmailDto) {
     return this.users.updateEmail(id, emailDto);
-  }
-
-  @Get('/config')
-  getConfig() {
-    return this.config;
   }
 }
