@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Header,
@@ -17,6 +18,8 @@ import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { StaffGuard } from './guards/staff.guard.js';
+import { TicketByIdPipe } from './pipe/ticket-by-id.pipe.js';
+import type { Ticket } from './ticket.interface.js';
 import { TicketsService } from './tickets.service.js';
 
 @Controller('tickets')
@@ -28,15 +31,29 @@ export class TicketsController {
     return this.ticketService.findAll(filters.status, filters.priority);
   }
 
-  @Get('/stats')
+  @Get('stats')
   stats() {
     return this.ticketService.stats();
   }
 
+  @Get('recent')
+  recent(
+    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ) {
+    return this.ticketService.renect(limit, page);
+  }
+
+  // @Get(':id')
+  // @Header('Cache-Control', 'no-store')
+  // findOne(@Param('id', ParseIntPipe) id: number) {
+  //   return this.ticketService.findOne(id);
+  // }
+
   @Get(':id')
   @Header('Cache-Control', 'no-store')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.ticketService.findOne(id);
+  findOne(@Param('id', TicketByIdPipe) ticket: Ticket) {
+    return ticket;
   }
 
   @Post()

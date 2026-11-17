@@ -4,7 +4,8 @@ import { UsersController } from './users.controller.js';
 import { UsersService } from './users.service.js';
 
 @Module({
-  // imports: [TicketsService] --> this is circuler dependency
+  // imports: [TicketsService],
+  // --> this is circuler dependency
   controllers: [UsersController],
   providers: [
     UsersService,

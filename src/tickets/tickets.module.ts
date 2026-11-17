@@ -8,6 +8,8 @@ import { TicketsService } from './tickets.service.js';
   imports: [UsersModule],
   controllers: [TicketsController],
   providers: [TicketsService],
+  // exports: [TicketsService],
+  // would produce cricurer depencency on user module if imports
 })
 export class TicketsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
