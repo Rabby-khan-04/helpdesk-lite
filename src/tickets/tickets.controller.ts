@@ -4,7 +4,6 @@ import {
   DefaultValuePipe,
   Delete,
   Get,
-  Header,
   Param,
   ParseIntPipe,
   Patch,
@@ -15,6 +14,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { Private } from '../common/decorators/private.decorator.js';
 import { ZodValidationPipea } from '../common/pipes/zod-validation.pipe.js';
 import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
@@ -31,6 +31,7 @@ import { TicketsService } from './tickets.service.js';
 export class TicketsController {
   constructor(private readonly ticketService: TicketsService) {}
 
+  @Private()
   @Get()
   findAll(@Query() filters: FilterTicketsQueryDto) {
     return this.ticketService.findAll(filters.status, filters.priority);
@@ -56,7 +57,7 @@ export class TicketsController {
   // }
 
   @Get(':id')
-  @Header('Cache-Control', 'no-store')
+  @Private('admin', 'staff', 'user')
   findOne(@Param('id', TicketByIdPipe) ticket: Ticket) {
     return ticket;
   }

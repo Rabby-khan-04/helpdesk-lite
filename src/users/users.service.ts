@@ -27,7 +27,7 @@ export class UsersService {
       id: 'u002',
       name: 'Bob Martinez',
       email: 'bob.martinez@example.com',
-      role: 'editor',
+      role: 'staff',
       password: 'hashed_pw_bob_2024',
       // photo omitted (optional field)
       age: 27,
@@ -47,7 +47,7 @@ export class UsersService {
       id: 'u004',
       name: 'Diana Kowalski',
       email: 'diana.kowalski@example.com',
-      role: 'moderator',
+      role: 'staff',
       password: 'hashed_pw_diana_2024',
       photo: 'https://example.com/photos/diana.jpg',
       age: 35,
@@ -91,7 +91,7 @@ export class UsersService {
       throw new ConflictException(
         `User with email: ${dto.email} already exists`,
       );
-    const user = {
+    const user: User = {
       id: randomUUID().slice(0, 8),
       name: dto.name,
       gender: dto.gender,
