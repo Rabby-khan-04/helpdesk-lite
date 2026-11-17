@@ -3,17 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { Ticket } from './ticket.interface.js';
 
 @Injectable()
 export class TicketsService {
+  constructor(private usersService: UsersService) {}
   private readonly tickets: Ticket[] = [
     {
       id: 1,
       subject: 'Cannot login to account',
       description: 'User cannot access the dashboard after login.',
+      reporterId: 'u001',
       priority: 'high',
       status: 'open',
       createdAt: '2026-09-01T10:00:00.000Z',
@@ -22,6 +25,7 @@ export class TicketsService {
       id: 2,
       subject: 'Payment failed',
       description: 'Card payment fails at the checkout step.',
+      reporterId: 'u002',
       priority: 'medium',
       status: 'open',
       createdAt: '2026-09-01T11:30:00.000Z',
@@ -30,12 +34,12 @@ export class TicketsService {
       id: 3,
       subject: 'Invoice download not working',
       description: 'Invoice PDF download returns an empty file.',
+      reporterId: 'u003',
       priority: 'low',
       status: 'closed',
       createdAt: '2026-09-01T12:45:00.000Z',
     },
   ];
-
   private nextTicketId = 4;
 
   findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
@@ -58,10 +62,13 @@ export class TicketsService {
   }
 
   create(createTicketDto: CreateTicketDto) {
+    const user = this.usersService.findOne(createTicketDto.reporterId);
+    console.log(user);
     const ticket: Ticket = {
       id: this.nextTicketId++,
       subject: createTicketDto.subject,
       description: createTicketDto.description,
+      reporterId: createTicketDto.reporterId,
       priority: createTicketDto.priority,
       status: 'open',
       createdAt: new Date().toISOString(),

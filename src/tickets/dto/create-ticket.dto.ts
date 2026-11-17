@@ -9,4 +9,7 @@ export class CreateTicketDto {
   description: string;
   @IsIn(['low', 'medium', 'high'])
   priority: 'low' | 'medium' | 'high';
+  @IsString()
+  @IsNotEmpty()
+  reporterId: string;
 }
