@@ -126,7 +126,6 @@ export class TicketsService {
 
   create(createTicketDto: CreateTicketDto) {
     const user = this.usersService.findOne(createTicketDto.reporterId);
-    console.log(user);
     const ticket: Ticket = {
       id: this.nextTicketId++,
       subject: createTicketDto.subject,

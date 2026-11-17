@@ -12,13 +12,18 @@ import {
   Query,
   Res,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { CreateTicketDto } from './dto/create-ticket.dto.js';
+import { ZodValidationPipea } from '../common/pipes/zod-validation.pipe.js';
 import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { StaffGuard } from './guards/staff.guard.js';
 import { TicketByIdPipe } from './pipe/ticket-by-id.pipe.js';
+import {
+  type CreateTicketInput,
+  createTicketSchema,
+} from './schema/ticket-schema.js';
 import type { Ticket } from './ticket.interface.js';
 import { TicketsService } from './tickets.service.js';
 
@@ -57,8 +62,9 @@ export class TicketsController {
   }
 
   @Post()
+  @UsePipes(new ZodValidationPipea(createTicketSchema))
   create(
-    @Body() createTicketDto: CreateTicketDto,
+    @Body() createTicketDto: CreateTicketInput,
     @Res({ passthrough: true }) res: Response,
   ) {
     const ticket = this.ticketService.create(createTicketDto);
