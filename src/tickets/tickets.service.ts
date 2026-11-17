@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { Ticket } from './ticket.interface.js';
+import { PublicUser } from '../users/public-user.js';
 
 @Injectable()
 export class TicketsService {
@@ -186,5 +188,11 @@ export class TicketsService {
     return [...this.tickets]
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, Math.min(limit, 50));
+  }
+
+  assertCanAccess(ticket: Ticket, user: PublicUser) {
+    if (user.role === 'user' && ticket.reporterId !== user.id) {
+      throw new ForbiddenException('You can only access your own tickets');
+    }
   }
 }

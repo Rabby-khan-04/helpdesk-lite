@@ -1,13 +1,16 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import argon2 from 'argon2';
 import { randomUUID } from 'crypto';
+import { Ticket } from '../tickets/ticket.interface.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
+import { PublicUser } from './public-user.js';
 import { User } from './users.interface.js';
 
 @Injectable()
@@ -15,22 +18,20 @@ export class UsersService {
   private readonly users: User[] = [
     {
       id: 'u001',
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      role: 'admin',
-      password: 'hashed_pw_alice_2024',
-      photo: 'https://example.com/photos/alice.jpg',
-      age: 32,
+      name: 'Amina Staff',
+      email: 'amina.staff@example.com',
+      role: 'staff',
+      password: 'placeholder_hash_1',
+      age: 31,
       gender: 'female',
     },
     {
       id: 'u002',
-      name: 'Bob Martinez',
-      email: 'bob.martinez@example.com',
-      role: 'staff',
-      password: 'hashed_pw_bob_2024',
-      // photo omitted (optional field)
-      age: 27,
+      name: 'Adam Admin',
+      email: 'adam.admin@example.com',
+      role: 'admin',
+      password: 'placeholder_hash_2',
+      age: 40,
       gender: 'male',
     },
     {

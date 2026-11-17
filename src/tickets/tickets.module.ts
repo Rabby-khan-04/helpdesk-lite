@@ -1,5 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { RequestLoggerMiddleware } from '../common/request-logger.middleware.js';
+import { Module } from '@nestjs/common';
 import { UsersModule } from '../users/users.module.js';
 import { TicketsController } from './tickets.controller.js';
 import { TicketsService } from './tickets.service.js';
@@ -11,8 +10,9 @@ import { TicketsService } from './tickets.service.js';
   // exports: [TicketsService],
   // would produce cricurer depencency on user module if imports
 })
-export class TicketsModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggerMiddleware).forRoutes(TicketsController);
-  }
+export class TicketsModule {
+  //  implements NestModule
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(RequestLoggerMiddleware).forRoutes(TicketsController);
+  // }
 }

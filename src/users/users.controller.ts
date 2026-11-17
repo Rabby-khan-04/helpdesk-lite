@@ -8,9 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { Private } from '../common/decorators/private.decorator.js';
+import type { AuthRequest } from '../common/middleware/current-user.middleware.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FilterUserQueryDto } from './dto/filter-user-query.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
@@ -28,16 +31,23 @@ export class UsersController {
     @Optional() @Inject('HTTP_OPTIONS') private options: unknown,
   ) {}
 
+  @Private('staff', 'admin')
   @Get()
   findAll(@Query() filter: FilterUserQueryDto) {
     return this.users.findAll(filter.gender);
   }
 
-  @Get('/config')
+  @Get('me')
+  me(@Req() req: AuthRequest) {
+    return req.user;
+  }
+
+  @Get('config')
   getConfig() {
     return this.config;
   }
 
+  @Private()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return toPublicUsers(this.users.findOne(id));
@@ -55,11 +65,13 @@ export class UsersController {
     return toPublicUsers(user);
   }
 
+  @Private()
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.users.update(id, dto);
   }
 
+  @Private()
   @Patch(':id/email')
   updateEmail(@Param('id') id: string, @Body() emailDto: updateEmailDto) {
     return this.users.updateEmail(id, emailDto);

@@ -1,6 +1,6 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
+import { logger } from './common/middleware/logger.middleware.js';
 import { ResponseInterceptor } from './common/response.interceptor.js';
 
 async function bootstrap() {
@@ -19,6 +19,8 @@ async function bootstrap() {
   //     transform: true,
   //   }),
   // );
+
+  app.use(logger);
 
   app.useGlobalInterceptors(new ResponseInterceptor());
 
