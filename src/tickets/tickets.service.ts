@@ -4,11 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ErrorCode } from '../common/error-codes.js';
+import { PublicUser } from '../users/public-user.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
+import { TicketCloseExceptions } from './exceptions/ticket-close.exceptions.js';
 import { Ticket } from './ticket.interface.js';
-import { PublicUser } from '../users/public-user.js';
 
 @Injectable()
 export class TicketsService {
@@ -121,7 +123,10 @@ export class TicketsService {
   findOne(id: number) {
     const ticket = this.tickets.find((ticket) => ticket.id === id);
 
-    if (!ticket) throw new NotFoundException(`Ticket with Id: ${id} not found`);
+    if (!ticket)
+      throw new NotFoundException(`Ticket with Id: ${id} not found`, {
+        errorCode: ErrorCode.TicketNotFound,
+      });
 
     return ticket;
   }
@@ -147,7 +152,7 @@ export class TicketsService {
     const ticket = this.findOne(id);
 
     if (ticket.status === 'closed')
-      throw new BadRequestException('Closed ticket cannot be updated!');
+      throw new TicketCloseExceptions('Closed ticket cannot be updated!');
 
     Object.assign(ticket, updateTicketDto);
 

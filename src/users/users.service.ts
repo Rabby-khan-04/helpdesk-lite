@@ -1,16 +1,14 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import argon2 from 'argon2';
 import { randomUUID } from 'crypto';
-import { Ticket } from '../tickets/ticket.interface.js';
+import { ErrorCode } from '../common/error-codes.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
-import { PublicUser } from './public-user.js';
 import { User } from './users.interface.js';
 
 @Injectable()
@@ -91,6 +89,7 @@ export class UsersService {
     if (exist)
       throw new ConflictException(
         `User with email: ${dto.email} already exists`,
+        { errorCode: ErrorCode.EmailTaken },
       );
     const user: User = {
       id: randomUUID().slice(0, 8),
