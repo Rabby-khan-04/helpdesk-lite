@@ -10,17 +10,17 @@ import {
   Post,
   Query,
   Res,
-  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Private } from '../common/decorators/private.decorator.js';
+import { ResponseMessage } from '../common/decorators/response-message.decorator.js';
 import { CurrentUser } from '../common/decorators/user.decorator.js';
 import { ZodValidationPipea } from '../common/pipes/zod-validation.pipe.js';
+import { WithMessage } from '../common/response.interceptor.js';
 import type { PublicUser } from '../users/public-user.js';
 import { FilterTicketsQueryDto } from './dto/filter-tickets-query.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
-import { StaffGuard } from './guards/staff.guard.js';
 import { TicketByIdPipe } from './pipe/ticket-by-id.pipe.js';
 import {
   createTicketSchema,
@@ -78,9 +78,10 @@ export class TicketsController {
   ) {
     const ticket = this.ticketService.create(createTicketDto);
     res.setHeader('Location', `/api/tickets/${ticket.id}`);
-    return ticket;
+    return new WithMessage(`Ticket ${ticket.id} created!!`, ticket);
   }
 
+  @ResponseMessage('Ticket updated')
   @Private()
   @Patch(':id')
   update(
@@ -92,6 +93,7 @@ export class TicketsController {
 
   // Scopped for only the close route, but for now it's dead weight, cause the app module used it with APP_FILTER
   // @UseFilters(HttpExceptionFilter)
+  @ResponseMessage('Ticket closed')
   @Private('staff', 'admin')
   @Patch(':id/close')
   // @HttpCode(204)
@@ -99,6 +101,7 @@ export class TicketsController {
     return this.ticketService.closeTicket(id);
   }
 
+  @ResponseMessage('Ticket deleted')
   @Private('admin')
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {

@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Private } from '../common/decorators/private.decorator.js';
+import { ResponseMessage } from '../common/decorators/response-message.decorator.js';
 import type { AuthRequest } from '../common/middleware/current-user.middleware.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FilterUserQueryDto } from './dto/filter-user-query.dto.js';
@@ -53,6 +54,7 @@ export class UsersController {
     return toPublicUsers(this.users.findOne(id));
   }
 
+  @ResponseMessage('User created')
   @Post()
   async create(
     @Res({ passthrough: true }) res: Response,
@@ -65,6 +67,7 @@ export class UsersController {
     return toPublicUsers(user);
   }
 
+  @ResponseMessage('User updated')
   @Private()
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
@@ -75,5 +78,12 @@ export class UsersController {
   @Patch(':id/email')
   updateEmail(@Param('id') id: string, @Body() emailDto: updateEmailDto) {
     return this.users.updateEmail(id, emailDto);
+  }
+
+  @Get('_slow')
+  @Private('admin')
+  async slow() {
+    await new Promise((resolve) => setTimeout(resolve, 6000));
+    return 'finally';
   }
 }
