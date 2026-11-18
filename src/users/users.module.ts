@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { IdGeneratorModule } from '../id-generator/id-denerator.module.js';
+import { TicketsModule } from '../tickets/tickets.module.js';
 import { Argon2PasswordHasher } from './argon2-password-hasher.js';
 import { InMemoryUsersRepository } from './in-memory-users.repository.js';
 import { PasswordHasher } from './password-hasher.js';
@@ -11,7 +12,10 @@ import { UsersService } from './users.service.js';
   // imports: [TicketsService],
   // --> this is circuler dependency
 
-  imports: [IdGeneratorModule.register({ prefix: 'usr' })],
+  imports: [
+    IdGeneratorModule.register({ prefix: 'usr' }),
+    forwardRef(() => TicketsModule),
+  ],
   controllers: [UsersController],
   providers: [
     UsersService,
