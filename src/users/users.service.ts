@@ -4,15 +4,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import argon2 from 'argon2';
 import { ErrorCode } from '../common/error-codes.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
+import { PasswordHasher } from './password-hasher.js';
 import { UserFilter, UserRepository } from './user.repository.js';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepo: UserRepository) {}
+  constructor(
+    private userRepo: UserRepository,
+    private readonly hasher: PasswordHasher,
+  ) {}
 
   async findAll(filters: UserFilter) {
     return await this.userRepo.findAll(filters);
@@ -43,7 +46,7 @@ export class UsersService {
       gender: dto.gender,
       age: dto.age,
       email: dto.email,
-      password: await argon2.hash(dto.password),
+      password: await this.hasher.hash(dto.password),
       photo: dto.photo ?? '',
       role: 'user',
     });
