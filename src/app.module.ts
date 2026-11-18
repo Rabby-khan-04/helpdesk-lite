@@ -13,6 +13,7 @@ import { CurrentUserMiddleware } from './common/middleware/current-user.middlewa
 import { ResponseInterceptor } from './common/response.interceptor.js';
 import { TimeoutInterceptor } from './common/timeout.interceptor.js';
 import { TimingInterceptor } from './common/timing.interceptor.js';
+import { ScopeLabModule } from './lab/lab.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
 import { UsersModule } from './users/users.module.js';
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module.js';
     TicketsModule,
     UsersModule,
     CommonModule,
+    ScopeLabModule,
   ],
   providers: [
     // { provide: APP_FILTER, useClass: HttpExceptionFilter },
