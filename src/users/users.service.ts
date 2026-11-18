@@ -1,10 +1,13 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ErrorCode } from '../common/error-codes.js';
+import { ID_GENERATOR_OPTIONS } from '../id-generator/id-generator.options.js';
+import { IdGenerator } from '../id-generator/id-generator.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { updateEmailDto, UpdateUserDto } from './dto/update-user.dto.js';
 import { PasswordHasher } from './password-hasher.js';
@@ -15,6 +18,7 @@ export class UsersService {
   constructor(
     private userRepo: UserRepository,
     private readonly hasher: PasswordHasher,
+    private readonly ids: IdGenerator,
   ) {}
 
   async findAll(filters: UserFilter) {
@@ -42,6 +46,7 @@ export class UsersService {
       );
 
     return this.userRepo.create({
+      id: this.ids.generate(),
       name: dto.name,
       gender: dto.gender,
       age: dto.age,

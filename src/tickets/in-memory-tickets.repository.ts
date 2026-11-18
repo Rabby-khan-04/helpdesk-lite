@@ -17,6 +17,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'high',
       status: 'open',
       createdAt: new Date('2026-09-01T10:00:00.000Z'),
+      reference: 'tkt_seed0001',
     },
     {
       id: 2,
@@ -26,6 +27,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'medium',
       status: 'open',
       createdAt: new Date('2026-09-01T11:30:00.000Z'),
+      reference: 'tkt_seed0002',
     },
     {
       id: 3,
@@ -35,6 +37,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'low',
       status: 'closed',
       createdAt: new Date('2026-09-01T12:45:00.000Z'),
+      reference: 'tkt_seed00010',
     },
     {
       id: 4,
@@ -44,6 +47,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'high',
       status: 'open',
       createdAt: new Date('2026-09-02T08:15:00.000Z'),
+      reference: 'tkt_seed0003',
     },
     {
       id: 5,
@@ -53,6 +57,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'medium',
       status: 'open',
       createdAt: new Date('2026-09-02T09:40:00.000Z'),
+      reference: 'tkt_seed0004',
     },
     {
       id: 6,
@@ -62,6 +67,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'high',
       status: 'open',
       createdAt: new Date('2026-09-02T14:05:00.000Z'),
+      reference: 'tkt_seed0005',
     },
     {
       id: 7,
@@ -71,6 +77,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'medium',
       status: 'closed',
       createdAt: new Date('2026-09-03T07:20:00.000Z'),
+      reference: 'tkt_seed0006',
     },
     {
       id: 8,
@@ -80,6 +87,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'high',
       status: 'open',
       createdAt: new Date('2026-09-03T10:55:00.000Z'),
+      reference: 'tkt_seed0007',
     },
     {
       id: 9,
@@ -89,6 +97,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'low',
       status: 'closed',
       createdAt: new Date('2026-09-03T16:30:00.000Z'),
+      reference: 'tkt_seed0008',
     },
     {
       id: 10,
@@ -98,6 +107,7 @@ export class InMemoryTicketsRepository implements TicketsRepository {
       priority: 'medium',
       status: 'open',
       createdAt: new Date('2026-09-04T09:10:00.000Z'),
+      reference: 'tkt_seed0009',
     },
   ];
   private nextTicketId = 11;

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateEmail, UserFilter, UserRepository } from './user.repository.js';
 import { User } from './users.interface.js';
 
@@ -77,8 +72,8 @@ export class InMemoryUsersRepository implements UserRepository {
     return this.users.find((user) => user.email === email);
   }
 
-  async create(data: Omit<User, 'id'>): Promise<User> {
-    const user: User = { id: randomUUID().slice(0, 8), ...data };
+  async create(data: User): Promise<User> {
+    const user: User = { ...data };
     this.users.push(user);
     return user;
   }

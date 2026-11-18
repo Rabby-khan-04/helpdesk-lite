@@ -6,4 +6,5 @@ export interface Ticket {
   priority: 'low' | 'medium' | 'high';
   status: 'open' | 'closed';
   createdAt: Date;
+  reference: string;
 }
