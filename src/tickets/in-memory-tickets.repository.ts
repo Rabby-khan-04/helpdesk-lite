@@ -167,12 +167,6 @@ export class InMemoryTicketsRepository implements TicketsRepository {
     return ticket;
   }
 
-  async renect(limit?: number, page?: number): Promise<Ticket[]> {
-    return [...this.tickets]
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, Math.min(limit ? limit : 1, 50));
-  }
-
   async stats(): Promise<{ open: number; closed: number; total: number }> {
     const open = this.tickets.filter(
       (ticket) => ticket.status === 'open',

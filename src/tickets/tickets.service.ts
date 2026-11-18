@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { type Clock, CLOCK } from '../common/clock.js';
 import { ErrorCode } from '../common/error-codes.js';
+import { APP_SETTINGS, type AppSettings } from '../common/settings.js';
 import { PublicUser } from '../users/public-user.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
@@ -21,6 +22,7 @@ export class TicketsService {
     private repo: TicketsRepository,
     private usersService: UsersService,
     @Inject(CLOCK) private readonly now: Clock,
+    @Inject(APP_SETTINGS) private readonly settings: AppSettings,
   ) {}
 
   findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
@@ -79,8 +81,15 @@ export class TicketsService {
     return ticket;
   }
 
-  async renect(limit: number, page: number) {
-    return await this.repo.renect(limit, page);
+  async renect(limit: number, page: number): Promise<Ticket[]> {
+    const take = Math.min(Math.max(limit, 1), this.settings.maxPageSize);
+    const skip = (Math.max(page, 1) - 1) * take;
+
+    const tickets = await this.repo.findAll({});
+
+    return tickets
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(skip, skip + take);
   }
 
   assertCanAccess(ticket: Ticket, user: PublicUser) {
