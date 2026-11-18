@@ -72,11 +72,11 @@ export class TicketsController {
 
   @Post()
   @UsePipes(new ZodValidationPipea(createTicketSchema))
-  create(
+  async create(
     @Body() createTicketDto: CreateTicketInput,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const ticket = this.ticketService.create(createTicketDto);
+    const ticket = await this.ticketService.create(createTicketDto);
     res.setHeader('Location', `/api/tickets/${ticket.id}`);
     return new WithMessage(`Ticket ${ticket.id} created!!`, ticket);
   }

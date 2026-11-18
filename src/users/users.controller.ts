@@ -34,10 +34,11 @@ export class UsersController {
 
   @Private('staff', 'admin')
   @Get()
-  findAll(@Query() filter: FilterUserQueryDto) {
-    return this.users.findAll(filter.gender);
+  async findAll(@Query() filter: FilterUserQueryDto) {
+    return await this.users.findAll(filter);
   }
 
+  @Private()
   @Get('me')
   me(@Req() req: AuthRequest) {
     return req.user;
@@ -50,8 +51,8 @@ export class UsersController {
 
   @Private()
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return toPublicUsers(this.users.findOne(id));
+  async findOne(@Param('id') id: string) {
+    return toPublicUsers(await this.users.findOne(id));
   }
 
   @ResponseMessage('User created')

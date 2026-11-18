@@ -29,11 +29,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
       else {
         const parsed = body as {
           message?: string | string[];
-          errorcode?: string;
+          errorCode?: string;
         };
 
         message = parsed.message ?? exception.message;
-        errorCode = parsed?.errorcode;
+        errorCode = parsed?.errorCode;
       }
     } else {
       this.logger.error(
@@ -41,13 +41,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
-    httpAdapter.reply(ctx.getResponse(), {
-      success: false,
-      statusCode: status,
-      message,
-      errorCode,
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      timestamp: new Date().toISOString(),
-    });
+    httpAdapter.reply(
+      ctx.getResponse(),
+      {
+        success: false,
+        statusCode: status,
+        message,
+        errorCode,
+        path: httpAdapter.getRequestUrl(ctx.getRequest()),
+        timestamp: new Date().toISOString(),
+      },
+      status,
+    );
   }
 }

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { InMemoryUsersRepository } from './in-memory-users.repository.js';
+import { UserRepository } from './user.repository.js';
 import { UsersController } from './users.controller.js';
 import { UsersService } from './users.service.js';
 
@@ -8,6 +10,8 @@ import { UsersService } from './users.service.js';
   controllers: [UsersController],
   providers: [
     UsersService,
+
+    { provide: UserRepository, useClass: InMemoryUsersRepository },
 
     // injecting something not a class
     {

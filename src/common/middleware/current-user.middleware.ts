@@ -15,12 +15,12 @@ export interface AuthRequest extends Request {
 export class CurrentUserMiddleware implements NestMiddleware {
   constructor(private readonly users: UsersService) {}
 
-  use(req: AuthRequest, _res: Response, next: NextFunction) {
+  async use(req: AuthRequest, _res: Response, next: NextFunction) {
     const id = req.headers['x-user-id'];
 
     if (typeof id === 'string' && id.length > 0) {
       try {
-        req.user = toPublicUsers(this.users.findOne(id));
+        req.user = toPublicUsers(await this.users.findOne(id));
       } catch (error) {
         throw new UnauthorizedException('Unauthorized access');
       }

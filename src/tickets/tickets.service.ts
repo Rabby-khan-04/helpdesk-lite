@@ -2,8 +2,11 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
+import { ErrorCode } from '../common/error-codes.js';
 import { PublicUser } from '../users/public-user.js';
+import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 import { TicketCloseExceptions } from './exceptions/ticket-close.exceptions.js';
@@ -12,78 +15,69 @@ import { TicketsRepository } from './tickets.repository.js';
 
 @Injectable()
 export class TicketsService {
-  constructor(private repo: TicketsRepository) {}
+  constructor(
+    private repo: TicketsRepository,
+    private usersService: UsersService,
+  ) {}
 
   findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
-    this.repo.findAll({ status, priority });
+    return this.repo.findAll({ status, priority });
   }
 
-  findOne(id: number) {
-    return this.repo.findOne(id);
+  async findOne(id: number) {
+    const ticket = await this.repo.findOne(id);
+
+    if (!ticket)
+      throw new NotFoundException(`Ticket with Id: ${id} not found`, {
+        errorCode: ErrorCode.TicketNotFound,
+      });
+
+    return ticket;
   }
 
-  create(createTicketDto: CreateTicketDto) {
-    const user = this.usersService.findOne(createTicketDto.reporterId);
-    const ticket: Ticket = {
-      id: this.nextTicketId++,
+  async create(createTicketDto: CreateTicketDto) {
+    await this.usersService.findOne(createTicketDto.reporterId);
+
+    return this.repo.create({
       subject: createTicketDto.subject,
       description: createTicketDto.description,
       reporterId: createTicketDto.reporterId,
       priority: createTicketDto.priority,
       status: 'open',
       createdAt: new Date().toISOString(),
-    };
-
-    this.tickets.push(ticket);
-
-    return ticket;
+    });
   }
 
-  update(id: number, updateTicketDto: UpdateTicketDto) {
-    const ticket = this.findOne(id);
+  async update(id: number, updateTicketDto: UpdateTicketDto) {
+    const ticket = await this.findOne(id);
 
     if (ticket.status === 'closed')
       throw new TicketCloseExceptions('Closed ticket cannot be updated!');
 
-    Object.assign(ticket, updateTicketDto);
-
-    return ticket;
+    return this.repo.update(id, updateTicketDto);
   }
 
-  closeTicket(id: number) {
-    const ticket = this.findOne(id);
+  async closeTicket(id: number) {
+    const ticket = await this.findOne(id);
 
     if (ticket.status === 'closed')
       throw new BadRequestException('Ticket is already closed');
 
-    Object.assign(ticket, { status: 'closed' });
+    return this.repo.closeTicket(id);
+  }
 
+  async stats() {
+    return this.repo.stats();
+  }
+
+  async delete(id: number) {
+    const ticket = await this.findOne(id);
+    await this.repo.remove(id);
     return ticket;
   }
 
-  stats() {
-    const open = this.tickets.filter(
-      (ticket) => ticket.status === 'open',
-    ).length;
-
-    return {
-      open,
-      closed: this.tickets.length - open,
-      total: this.tickets.length,
-    };
-  }
-
-  delete(id: number) {
-    const ticket = this.findOne(id);
-    this.tickets.splice(this.tickets.indexOf(ticket), 1);
-
-    return ticket;
-  }
-
-  renect(limit: number, page: number) {
-    return [...this.tickets]
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .slice(0, Math.min(limit, 50));
+  async renect(limit: number, page: number) {
+    return await this.repo.renect(limit, page);
   }
 
   assertCanAccess(ticket: Ticket, user: PublicUser) {
