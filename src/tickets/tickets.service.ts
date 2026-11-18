@@ -1,9 +1,11 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { type Clock, CLOCK } from '../common/clock.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { PublicUser } from '../users/public-user.js';
 import { UsersService } from '../users/users.service.js';
@@ -18,6 +20,7 @@ export class TicketsService {
   constructor(
     private repo: TicketsRepository,
     private usersService: UsersService,
+    @Inject(CLOCK) private readonly now: Clock,
   ) {}
 
   findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
@@ -44,7 +47,7 @@ export class TicketsService {
       reporterId: createTicketDto.reporterId,
       priority: createTicketDto.priority,
       status: 'open',
-      createdAt: new Date().toISOString(),
+      createdAt: this.now(),
     });
   }
 

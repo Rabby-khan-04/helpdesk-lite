@@ -5,6 +5,7 @@ import {
   type NestModule,
 } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { CommonModule } from './common/common.module.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { RoleGuard } from './common/guards/role.guard.js';
 import { CurrentUserMiddleware } from './common/middleware/current-user.middleware.js';
@@ -15,7 +16,7 @@ import { TicketsModule } from './tickets/tickets.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
-  imports: [TicketsModule, UsersModule],
+  imports: [TicketsModule, UsersModule, CommonModule],
   providers: [
     // { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

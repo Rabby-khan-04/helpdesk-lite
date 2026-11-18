@@ -5,5 +5,5 @@ export interface Ticket {
   reporterId: string;
   priority: 'low' | 'medium' | 'high';
   status: 'open' | 'closed';
-  createdAt: string;
+  createdAt: Date;
 }
