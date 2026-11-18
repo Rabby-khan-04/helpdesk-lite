@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
+import 'dotenv/config';
 import { AppModule } from './app.module.js';
 import { logger } from './common/middleware/logger.middleware.js';
-import { ResponseInterceptor } from './common/response.interceptor.js';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     routeConflictPolicy: { duplicate: 'error', shadow: 'warn' },

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { IdGeneratorModule } from '../id-generator/id-denerator.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { InMemoryTicketsRepository } from './in-memory-tickets.repository.js';
+import { PrismaTicketsRepository } from './prisma-tickets.repository.js';
 import { TicketsController } from './tickets.controller.js';
 import { TicketsRepository } from './tickets.repository.js';
 import { TicketsService } from './tickets.service.js';
@@ -11,7 +12,13 @@ import { TicketsService } from './tickets.service.js';
   controllers: [TicketsController],
   providers: [
     TicketsService,
-    { provide: TicketsRepository, useClass: InMemoryTicketsRepository },
+    {
+      provide: TicketsRepository,
+      useClass:
+        process.env.REPOSITORY === 'memory'
+          ? InMemoryTicketsRepository
+          : PrismaTicketsRepository,
+    },
   ],
   // exports: [TicketsService],
   // would produce cricurer depencency on user module if imports
