@@ -9,6 +9,8 @@ import { type Clock, CLOCK } from '../common/clock.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { APP_SETTINGS, type AppSettings } from '../common/settings.js';
 import { IdGenerator } from '../id-generator/id-generator.service.js';
+import { NotificationService } from '../notifications/notifications.service.js';
+import { NotifyChannel } from '../notifications/notifier.js';
 import { PublicUser } from '../users/public-user.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
@@ -25,6 +27,7 @@ export class TicketsService {
     @Inject(CLOCK) private readonly now: Clock,
     @Inject(APP_SETTINGS) private readonly settings: AppSettings,
     private readonly ids: IdGenerator,
+    private readonly notificationService: NotificationService,
   ) {}
 
   findAll(status?: Ticket['status'], priority?: Ticket['priority']) {
@@ -71,7 +74,16 @@ export class TicketsService {
     if (ticket.status === 'closed')
       throw new BadRequestException('Ticket is already closed');
 
-    return this.repo.closeTicket(id);
+    const closed = await this.repo.closeTicket(id);
+
+    const channel: NotifyChannel =
+      closed.priority === 'high' ? 'webhook' : 'log';
+    this.notificationService.send(
+      channel,
+      `Ticket with id: ${closed.id} is closed`,
+    );
+
+    return closed;
   }
 
   async stats() {
